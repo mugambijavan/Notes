@@ -1,9 +1,15 @@
 import {useRef, useEffect, useState} from 'react'
 import { db } from '../appwrite/databases'
 import Trash from '../icons/Trash'
+import Spinner from '../icons/Spinner'
+import DeleteButton from './DeleteButton'
 import { setNewOffset, autoGrow, setZIndex, bodyParser } from '../utils'
 
-const NoteCard = ({note}) => {
+const NoteCard = ({note, setNotes}) => {
+    const [saving, setSaving] = useState(false);
+    const keyUpTimer = useRef(null);
+
+
     const body = bodyParser(note.body)
     const [position, setPosition] = useState (JSON.parse(note.position))
     const colors = JSON.parse(note.colors)
@@ -19,14 +25,16 @@ const NoteCard = ({note}) => {
     }, [])
 
     const mouseDown = (e) => {
-        mouseStartPos.x = e.clientX
-        mouseStartPos.y = e.clientY
+            if (e.target.className === "card-header"){
+            mouseStartPos.x = e.clientX
+            mouseStartPos.y = e.clientY
 
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUp);
+            document.addEventListener("mousemove", mouseMove);
+            document.addEventListener("mouseup", mouseUp);
 
-        setZIndex(cardRef.current)
-    }
+            setZIndex(cardRef.current)
+            }
+        }
 
     const mouseMove = (e) => {
         const mouseMoveDir = {
@@ -57,6 +65,19 @@ const NoteCard = ({note}) => {
         } catch (error) {
             console.error(error)
         }
+        setSaving(false)
+    }
+
+    const handleKeyUp = () => {
+        setSaving(true)
+
+        if (keyUpTimer.current) {
+            clearTimeout(keyUpTimer.current);
+        }
+
+        keyUpTimer.current = setTimeout( () => {
+            saveData("body", textAreaRef.current.value);
+        }, 2000);
     }
 
     return (
@@ -72,10 +93,19 @@ const NoteCard = ({note}) => {
                     onMouseDown = { mouseDown }
                     className='card-header' 
                     style={{backgroundColor:colors.colorHeader}}>
-                    <Trash />
+                    <DeleteButton setNotes = {setNotes} noteId= {note.$id} />
+                    {
+                        saving && (
+                            <div className="card-saving">
+                                <Spinner color={colors.colorText} />
+                                <span style={{ color: colors.colorText }}>Saving...</span>
+                            </div>
+                        )
+                    }
                 </div>
                 <div className='card-body'>
                     <textarea 
+                        onKeyUp= {handleKeyUp}
                         ref={textAreaRef}
                         style={{color: colors.colorText}}
                         defaultValue={body}
