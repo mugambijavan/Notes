@@ -4,10 +4,13 @@ import Trash from '../icons/Trash'
 import Spinner from '../icons/Spinner'
 import DeleteButton from './DeleteButton'
 import { setNewOffset, autoGrow, setZIndex, bodyParser } from '../utils'
+import { useContext } from 'react'
+import { NoteContext } from '../context/NoteContext'
 
 const NoteCard = ({note }) => {
     const [saving, setSaving] = useState(false);
     const keyUpTimer = useRef(null);
+    const {setSelectedNote} = useContext(NoteContext)
 
 
     const body = bodyParser(note.body)
@@ -22,6 +25,7 @@ const NoteCard = ({note }) => {
 
     useEffect(() => {
         autoGrow(textAreaRef);
+        setZIndex(cardRef.current)
     }, [])
 
     const mouseDown = (e) => {
@@ -33,6 +37,7 @@ const NoteCard = ({note }) => {
             document.addEventListener("mouseup", mouseUp);
 
             setZIndex(cardRef.current)
+            setSelectedNote(note)
             }
         }
 
@@ -112,6 +117,7 @@ const NoteCard = ({note }) => {
                         onInput={() => {autoGrow(textAreaRef)}}
                         onFocus={() => {
                             setZIndex(cardRef.current)
+                            setSelectedNote(note)
                         } }
                         >
                     </textarea>
