@@ -1,13 +1,12 @@
-import NotesPage from "./pages/NotesPage.jsx"
+import Notespage from "./pages/NotesPage"
 
 function App() {
   return (
-  
       <div id='app'>
-        <NotesPage />
+        <Notespage />
       </div>
-    
-  );
+        
+  )
 }
 
 export default App

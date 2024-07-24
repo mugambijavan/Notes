@@ -18,4 +18,4 @@ const Trash = ({ size = "24" }) => {
     );
 };
 
-export default Trash;
+export default Trash
